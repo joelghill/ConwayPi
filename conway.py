@@ -1,7 +1,6 @@
 
 class Conway:
     data = []
-    lookAt = {}
     changedCells = []
     width = 20
     height = 20
@@ -12,7 +11,6 @@ class Conway:
         print(len(self.data))
         for index in range(self.width * self.height):
             self.data.append(0);
-            self.lookAt[index] = True
 
     def display(self):
         out = ""
@@ -83,18 +81,16 @@ class Conway:
             nbrs = self.getNeighbours(index)
             self.data[index] = 0
             self.changedCells.append(index)
-            self.lookAt[index] = True
             for nindex in range(len(nbrs)):
-                self.lookAt[nindex] = True
+                self.changedCells.append(nbrs[nindex])
 
     def reviveCell(self, index):
         if(self.validIndex(index)):
             nbrs = self.getNeighbours(index)
             self.data[index] = 1
             self.changedCells.append(index)
-            self.lookAt[index] = True
             for nindex in range(len(nbrs)):
-                self.lookAt[nindex] = True
+                self.changedCells.append(nbrs[nindex])
 
     def isCellAlive(self, index):
         return self.data[index] > 0
@@ -116,22 +112,17 @@ class Conway:
 
         if(newGen[index] != self.data[index]):
             self.changedCells.append(index)
-            self.lookAt[index] = True;
             for nindex in range(len(nbrs)):
-                self.lookAt[nindex] = True
-        else:
-            self.lookAt[index] = False
-
+                self.changedCells.append(nbrs[nindex])
 
     def newGeneration(self):
         ng = self.data[:]
+        lastGen = self.changedCells[:]
         self.changedCells = []
-        for index in range(len(self.lookAt)):
-            if(self.lookAt[index]):
-                self.applyRulesToCell(index, ng)
+        for index in range(len(lastGen)):
+            self.applyRulesToCell(lastGen[index], ng)
         self.data = ng
 
-"""
 c = Conway(5,5)
 c.display()
 print("")
@@ -148,4 +139,3 @@ print("")
 c.newGeneration()
 print("changed cell indexes: " + str(c.changedCells))
 c.display()
-"""
