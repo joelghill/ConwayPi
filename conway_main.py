@@ -4,11 +4,11 @@ from tkinter import messagebox
 from threading import *
 import time
 
-width = 60
-height = 40
+width = 120
+height = 80
 conway = Conway(width, height)
 running = False
-waitTime = 100
+waitTime = 5
 cells = []
 generation = 0
 
@@ -36,6 +36,16 @@ def initializeCanvas(canvas, width, height):
 def refreshCanvas(con, canvas):
 	global waitTime
 	global running
+	for index in range(len(con.changedCells)):
+                changeIndex = con.changedCells[index]
+                if(con.isCellAlive(changeIndex)):
+                    if(canvas.itemcget(changeIndex+1, 'fill') != 'black'):
+                        canvas.itemconfig(changeIndex+1, fill = 'black')
+                else:
+                    if(canvas.itemcget(changeIndex+1, 'fill') != 'white'):
+                        canvas.itemconfig(changeIndex+1, fill = 'white')
+
+	"""
 	for index in range(len(con.data)):
 		if(con.isCellAlive(index)):
 			if(canvas.itemcget(index+1, 'fill') != 'black'):
@@ -43,7 +53,7 @@ def refreshCanvas(con, canvas):
 		else:
 			if(canvas.itemcget(index+1, 'fill') != 'white'):
 				canvas.itemconfig(index+1, fill = 'white')
-			
+	"""		
 def clickCallback(event):
 	global conway
 	canvas = event.widget
