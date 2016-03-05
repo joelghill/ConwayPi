@@ -1,11 +1,14 @@
 
 class Conway:
-    data = []
-    changedCells = []
+    data = [] #array to hold all cells
+    changedCells = [] #array to hold all changed cells
     width = 20
     height = 20
 
     def __init__(self, width = 20, height = 20):
+        """
+        Initialize Conway class.
+        """
         self.width = width
         self.height = height
         print(len(self.data))
@@ -26,6 +29,10 @@ class Conway:
     def validIndex(self, index):
         return index >= 0 and index < len(self.data)
 
+
+    #####################################################################
+    ####################  GET CELL NIEGHBOURS  ##########################
+    #####################################################################
     def getNeighbours(self, index):
         return [self.getTopN(index),
                         self.getBottomN(index),
@@ -35,6 +42,7 @@ class Conway:
                         self.getTopLeftN(index),
                         self.getBottomLeftN(index),
                         self.getBottomRightN(index)]
+
 
     def getRightN(self, index):
         if(self.validIndex(index) == False): return -1;
@@ -77,25 +85,37 @@ class Conway:
         return self.getLeftN(self.getBottomN(index))
 
     def killCell(self, index):
+        """
+        index: index of cell to kill
+        post: The cell located at index is set to dead
+              Revived cell is added to changed cells list
+        """
         if(self.validIndex(index)):
-            nbrs = self.getNeighbours(index)
             self.data[index] = 0
             self.changedCells.append(index)
-            for nindex in range(len(nbrs)):
-                self.changedCells.append(nbrs[nindex])
+            
 
     def reviveCell(self, index):
+        """
+        index: index of cell to revive
+        post: The cell located at index is set to alive
+              Revived cell is added to changed cells list
+        """
         if(self.validIndex(index)):
-            nbrs = self.getNeighbours(index)
             self.data[index] = 1
             self.changedCells.append(index)
-            for nindex in range(len(nbrs)):
-                self.changedCells.append(nbrs[nindex])
+            
 
     def isCellAlive(self, index):
         return self.data[index] > 0
 
+
     def applyRulesToCell(self, index, newGen):
+        """
+        index: the index of the cell to check
+        newGen: The array of cells to update
+        Post: newGen is populated with updated cells
+        """
         nbrs = self.getNeighbours(index)
         numAlive = 0
         for cellIndex in range(len(nbrs)):
@@ -112,30 +132,21 @@ class Conway:
 
         if(newGen[index] != self.data[index]):
             self.changedCells.append(index)
-            for nindex in range(len(nbrs)):
-                self.changedCells.append(nbrs[nindex])
+            
 
     def newGeneration(self):
-        ng = self.data[:]
-        lastGen = self.changedCells[:]
+        """
+        Updates self.data to reflect the new state after one generation
+        """
+        ng = self.data[:]   #make copy of original data
+        lastGen = self.changedCells[:] 
+        for i in range(len(self.changedCells)):
+            lastGen = lastGen + self.getNeighbours(self.changedCells[i])
+        lastGen = list(set(lastGen))
+        #print(str(lastGen))
         self.changedCells = []
         for index in range(len(lastGen)):
             self.applyRulesToCell(lastGen[index], ng)
         self.data = ng
-
-c = Conway(5,5)
-c.display()
-print("")
-c.data[0] = 1
-c.data[5] = 1
-c.data[10] = 1
-c.display()
-print("")
-c.newGeneration()
-print("changed cell indexes: " + str(c.changedCells))
-c.display()
-
-print("")
-c.newGeneration()
-print("changed cell indexes: " + str(c.changedCells))
-c.display()
+        if(len(self.data)< len(lastGen)):
+            print("WARNING: ALGORITHM NO LONGER MORE EFFECTIVE THAN BRUTE FORCE")
