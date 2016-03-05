@@ -2,6 +2,7 @@
 class Conway:
     data = []
     changedCells = []
+    lookup = [-1] * 512
     width = 20
     height = 20
 
@@ -26,15 +27,27 @@ class Conway:
     def validIndex(self, index):
         return index >= 0 and index < len(self.data)
 
+    def environmentVariable(self, neighbours, index):
+        out = self.data[index]*16
+        out = out + self.data[neighbours[0]]*256
+        out = out + self.data[neighbours[1]]*32
+        out = out + self.data[neighbours[2]]*4
+        out = out + self.data[neighbours[3]]*128
+        out = out + self.data[neighbours[4]]*2
+        out = out + self.data[neighbours[5]]*64
+        out = out + self.data[neighbours[6]]*8
+        out = out + self.data[neighbours[7]]*1
+        return out
+
     def getNeighbours(self, index):
-        return [self.getTopN(index),
-                        self.getBottomN(index),
-                        self.getLeftN(index),
-                        self.getRightN(index),
-                        self.getTopRightN(index),
-                        self.getTopLeftN(index),
-                        self.getBottomLeftN(index),
-                        self.getBottomRightN(index)]
+        return [self.getTopLeftN(index),
+                self.getTopN(index),
+                self.getTopRightN(index),
+                                self.getLeftN(index),
+                                self.getRightN(index),
+                                self.getBottomLeftN(index),
+                                self.getBottomN(index),
+                                self.getBottomRightN(index)]
 
     def getRightN(self, index):
         if(self.validIndex(index) == False): return -1;
@@ -97,18 +110,25 @@ class Conway:
 
     def applyRulesToCell(self, index, newGen):
         nbrs = self.getNeighbours(index)
-        numAlive = 0
-        for cellIndex in range(len(nbrs)):
-            if(self.isCellAlive(nbrs[cellIndex])):
-                numAlive = numAlive + 1
+        env = self.environmentVariable(nbrs, index)
 
-        if(not self.isCellAlive(index) and numAlive == 3):
-            newGen[index] = 1
-
-        elif(self.isCellAlive(index) and (numAlive == 3 or numAlive == 2)):
-            newGen[index] = 1
+        if(self.lookup[env] >= 0):
+            newGen[index] = self.lookup[env]
         else:
-            newGen[index] = 0
+            numAlive = 0
+            for cellIndex in range(len(nbrs)):
+                    if(self.isCellAlive(nbrs[cellIndex])):
+                        numAlive = numAlive + 1
+
+                    if(not self.isCellAlive(index) and numAlive == 3):
+                        newGen[index] = 1
+
+                    elif(self.isCellAlive(index) and (numAlive == 3 or numAlive == 2)):
+                        newGen[index] = 1
+                    else:
+                        newGen[index] = 0
+
+            self.lookup[env] = newGen[index]
 
         if(newGen[index] != self.data[index]):
             self.changedCells.append(index)
@@ -122,13 +142,20 @@ class Conway:
         for index in range(len(lastGen)):
             self.applyRulesToCell(lastGen[index], ng)
         self.data = ng
-
+"""
 c = Conway(5,5)
 c.display()
 print("")
 c.data[0] = 1
 c.data[5] = 1
 c.data[10] = 1
+c.data[1] = 1
+c.data[6] = 1
+c.data[11] = 1
+c.data[2] = 1
+c.data[7] = 1
+c.data[12] = 1
+print(str(c.environmentVariable(c.getNeighbours(6), 6)))
 c.display()
 print("")
 c.newGeneration()
@@ -139,3 +166,4 @@ print("")
 c.newGeneration()
 print("changed cell indexes: " + str(c.changedCells))
 c.display()
+"""
