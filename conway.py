@@ -1,3 +1,10 @@
+"""
+Conway's Game of Life
+
+Joel Hill - 2016
+joel.hill.87@gmail.com
+"""
+
 
 class Conway:
     data = [] #array to hold all cells
