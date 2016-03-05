@@ -91,20 +91,15 @@ class Conway:
 
     def killCell(self, index):
         if(self.validIndex(index)):
-            nbrs = self.getNeighbours(index)
             self.data[index] = 0
             self.changedCells.append(index)
-            for nindex in range(len(nbrs)):
-                self.changedCells.append(nbrs[nindex])
+            
 
     def reviveCell(self, index):
         if(self.validIndex(index)):
-            nbrs = self.getNeighbours(index)
             self.data[index] = 1
             self.changedCells.append(index)
-            for nindex in range(len(nbrs)):
-                self.changedCells.append(nbrs[nindex])
-
+           
     def isCellAlive(self, index):
         return self.data[index] > 0
 
@@ -114,35 +109,40 @@ class Conway:
 
         if(self.lookup[env] >= 0):
             newGen[index] = self.lookup[env]
+            if(newGen[index] != self.data[index]):
+                self.changedCells.append(index)
+            return
         else:
-            numAlive = 0
+            numAlive = 0;
+
             for cellIndex in range(len(nbrs)):
-                    if(self.isCellAlive(nbrs[cellIndex])):
-                        numAlive = numAlive + 1
+                if(self.isCellAlive(nbrs[cellIndex])):
+                    numAlive = numAlive + 1
 
-                    if(not self.isCellAlive(index) and numAlive == 3):
-                        newGen[index] = 1
+                if(not self.isCellAlive(index) and numAlive == 3):
+                    newGen[index] = 1
 
-                    elif(self.isCellAlive(index) and (numAlive == 3 or numAlive == 2)):
-                        newGen[index] = 1
-                    else:
-                        newGen[index] = 0
+                elif(self.isCellAlive(index) and (numAlive == 3 or numAlive == 2)):
+                    newGen[index] = 1
+                else:
+                    newGen[index] = 0
 
-            self.lookup[env] = newGen[index]
+                self.lookup[env] = newGen[index]
 
-        if(newGen[index] != self.data[index]):
-            self.changedCells.append(index)
-            for nindex in range(len(nbrs)):
-                self.changedCells.append(nbrs[nindex])
+                if(newGen[index] != self.data[index]):
+                    self.changedCells.append(index)
 
     def newGeneration(self):
         ng = self.data[:]
         lastGen = self.changedCells[:]
+        for i in range(len(self.changedCells)):
+        	lastGen = lastGen + self.getNeighbours(self.changedCells[i])
+        lastGen = list(set(lastGen))
         self.changedCells = []
         for index in range(len(lastGen)):
-            self.applyRulesToCell(lastGen[index], ng)
+        	self.applyRulesToCell(lastGen[index], ng)
         self.data = ng
-"""
+"""      
 c = Conway(5,5)
 c.display()
 print("")
