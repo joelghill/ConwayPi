@@ -150,10 +150,7 @@ class Conway:
         for i in range(len(self.changedCells)):
             lastGen = lastGen + self.getNeighbours(self.changedCells[i])
         lastGen = list(set(lastGen))
-        #print(str(lastGen))
         self.changedCells = []
         for index in range(len(lastGen)):
             self.applyRulesToCell(lastGen[index], ng)
         self.data = ng
-        if(len(self.data)< len(lastGen)):
-            print("WARNING: ALGORITHM NO LONGER MORE EFFECTIVE THAN BRUTE FORCE")
